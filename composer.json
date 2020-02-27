@@ -1,0 +1,13 @@
+{
+    "name": "oboynitro/mr-db",
+    "description": "simple php database abstraction",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "oboynitro",
+            "email": "oboy.nitro1@gmail.com"
+        }
+    ],
+    "require": {}
+}
