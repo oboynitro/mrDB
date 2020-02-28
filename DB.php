@@ -94,18 +94,18 @@ class DB
     /**
      * @param $table
      * @param $fieldname
-     * @param $value
+     * @param $fieldvalue
      * @return array
      * fetch single record by id from the specified table
      */
-    public static function fetchSingleRecord($table, $fieldname, $value)
+    public static function fetchSingleRecord($table, $fieldname, $fieldvalue)
     {
         $conn = Connection::connect();
         try
         {
             $sql = "SELECT * FROM $table WHERE $fieldname=:val";
             $stmt = $conn->prepare($sql);
-            $stmt->bindParam(':val', $value);
+            $stmt->bindParam(':val', $fieldvalue);
             $stmt->execute();
             return $stmt->fetchAll();
         }
@@ -120,11 +120,11 @@ class DB
      * @param $table
      * @param $columns
      * @param $fieldname
-     * @param $value
+     * @param $fieldvalue
      * @return array
      * fetch single record by id with specific columns from the specified table
      */
-    public static function fetchSingleRecordFromSpecificColumnsByID($table, $columns, $fieldname, $value)
+    public static function fetchSingleRecordFromSpecificColumnsByID($table, $columns, $fieldname, $fieldvalue)
     {
         $conn = Connection::connect();
         $cols = implode(',', $columns);
@@ -132,7 +132,7 @@ class DB
         {
             $sql = "SELECT $cols FROM $table WHERE $fieldname=:val";
             $stmt = $conn->prepare($sql);
-            $stmt->bindParam(':val', $value);
+            $stmt->bindParam(':val', $fieldvalue);
             $stmt->execute();
             return $stmt->fetchAll();
         }
@@ -172,9 +172,10 @@ class DB
      * @param $table
      * @param $data
      * @param null $fieldname
-     * @param null $value
+     * @param null $fieldvalue
+     * @return bool
      */
-    public static function updateRecord($table, $data, $fieldname=null, $value=null)
+    public static function updateRecord($table, $data, $fieldname=null, $fieldvalue=null)
     {
         $conn = Connection::connect();
         $cols = '';
@@ -185,7 +186,7 @@ class DB
         $qString = rtrim($cols, ', ');
         try
         {
-            if ($fieldname !== null && $value !== null)
+            if ($fieldname !== null && $fieldvalue !== null)
             {
                 $sql = "UPDATE $table SET $qString WHERE $fieldname=?";
                 $stmt = $conn->prepare($sql);
@@ -193,7 +194,7 @@ class DB
                 {
                     $stmt->bindValue($key+1, $val);
                 }
-                $stmt->bindValue(count($data)+1, $value);
+                $stmt->bindValue(count($data)+1, $fieldvalue);
             }
             else
             {
@@ -204,12 +205,18 @@ class DB
                     $stmt->bindValue($key+1, $val);
                 }
             }
-            $stmt->execute();
-            echo 'Update successful';
+            return $stmt->execute();
         }
         catch (Exception $e)
         {
-            die('Failed to insert record');
+            die('Failed to update record');
         }
+    }
+
+
+    public static function deleteRecord($table, $fieldname, $fieldvalue)
+    {
+        $conn = Connection::connect();
+        
     }
 }
