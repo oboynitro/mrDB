@@ -8,7 +8,7 @@ class DB
 
     /**
      * @param $table
-     * fetch all data from the specified table
+     * @doc fetch all data from the specified table with limit and offset
      * @param null $limit
      * @param null $offset
      * @return array
@@ -51,7 +51,7 @@ class DB
      * @param null $limit
      * @param null $offset
      * @return array
-     * fetch specific column data from the specified table
+     * @doc fetch specific column data from the specified table with limit and offset
      */
     public static function fetchRecordsFromSpecificColumns($table, $columns, $limit=null, $offset=null)
     {
@@ -96,7 +96,7 @@ class DB
      * @param $fieldname
      * @param $fieldvalue
      * @return array
-     * fetch single record by id from the specified table
+     * @doc fetch single record by fieldname and fieldvalue from the specified table
      */
     public static function fetchSingleRecord($table, $fieldname, $fieldvalue)
     {
@@ -122,9 +122,9 @@ class DB
      * @param $fieldname
      * @param $fieldvalue
      * @return array
-     * fetch single record by id with specific columns from the specified table
+     * @doc fetch single record by fieldname and fieldvalue with specific columns from the specified table
      */
-    public static function fetchSingleRecordFromSpecificColumnsByID($table, $columns, $fieldname, $fieldvalue)
+    public static function fetchSingleRecordFromSpecifiedColumns($table, $columns, $fieldname, $fieldvalue)
     {
         $conn = Connection::connect();
         $cols = implode(',', $columns);
@@ -147,6 +147,7 @@ class DB
      * @param $table
      * @param $data
      * @return bool
+     * @doc insert record into specified table
      */
     public static function insertRecord($table, $data)
     {
@@ -174,6 +175,7 @@ class DB
      * @param null $fieldname
      * @param null $fieldvalue
      * @return bool
+     * @doc update record with fieldname and fieldvalue specified table
      */
     public static function updateRecord($table, $data, $fieldname=null, $fieldvalue=null)
     {
@@ -214,9 +216,36 @@ class DB
     }
 
 
-    public static function deleteRecord($table, $fieldname, $fieldvalue)
+
+    /**
+     * @param $table
+     * @param null $fieldname
+     * @param null $fieldvalue
+     * @return bool
+     * @doc delete record from specified table with fieldname and fieldvalue
+     */
+    public static function deleteRecord($table, $fieldname=null, $fieldvalue=null)
     {
         $conn = Connection::connect();
-        
+
+        try
+        {
+            if ($fieldname !== null && $fieldvalue !== null)
+            {
+                $sql = "DELETE FROM $table WHERE $fieldname=:val";
+                $stmt = $conn->prepare($sql);
+                $stmt->bindParam(':val', $fieldvalue);
+            }
+            else
+            {
+                $sql = "DELETE FROM $table WHERE 1";
+                $stmt = $conn->prepare($sql);
+            }
+            return $stmt->execute();
+        }
+        catch (Exception $e)
+        {
+            die('Failed to delete record');
+        }
     }
 }

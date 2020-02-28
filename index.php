@@ -4,7 +4,7 @@ $data = [
         'username' => 'king',
         'password' => 'arthur002'
     ];
-DB::updateRecord('users', $data);
+DB::deleteRecord('users');
 //$res = DB::fetchAllRecords('users');
 //var_dump($res);
 //session_start();
