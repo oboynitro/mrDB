@@ -1,10 +1,9 @@
 <?php
 
-require_once 'DBConn.php';
-require_once 'Functions.php';
+require_once 'Connection.php';
 
 
-class DBActions
+class DB
 {
 
     /**
@@ -15,7 +14,7 @@ class DBActions
      */
     public static function fetchAllRecords($table, $limit=null)
     {
-        $conn = DBConn::connect();
+        $conn = Connection::connect();
         try
         {
             if ($limit !== null)
@@ -32,7 +31,7 @@ class DBActions
         }
        catch (Exception $e)
        {
-            die('Error '. $e->getMessage());
+           die('Could not fetch data');
        }
     }
 
@@ -46,16 +45,14 @@ class DBActions
      */
     public static function fetchRecordsFromSpecificColumns($table, $columns, $limit=null)
     {
-        $conn = DBConn::connect();
+        $conn = Connection::connect();
 
         if (!count($columns))
         {
             die('no columns provided');
         }
 
-        $cols = Functions::reduceColumns($columns);
-        print_r($cols);
-
+        $cols = implode(',', $columns);
         try
         {
             if ($limit !== null)
@@ -72,7 +69,7 @@ class DBActions
         }
         catch (Exception $e)
         {
-            die('Error '. $e->getMessage());
+            die('Could not insert data');
         }
     }
 
@@ -85,7 +82,7 @@ class DBActions
      */
     public static function fetchSingleRecordByID($table, $id)
     {
-        $conn = DBConn::connect();
+        $conn = Connection::connect();
         try
         {
             $sql = "SELECT * FROM $table WHERE id = :id";
@@ -96,7 +93,7 @@ class DBActions
         }
         catch (Exception $e)
         {
-            die('Error '. $e->getMessage());
+            die('Could not fetch data');
         }
     }
 
@@ -110,8 +107,8 @@ class DBActions
      */
     public static function fetchSingleRecordFromSpecificColumnsByID($table, $columns, $id)
     {
-        $conn = DBConn::connect();
-        $cols = Functions::reduceColumns($columns);
+        $conn = Connection::connect();
+        $cols = implode(',', $columns);
         try
         {
             $sql = "SELECT $cols FROM $table WHERE id = :id";
@@ -122,7 +119,28 @@ class DBActions
         }
         catch (Exception $e)
         {
-            die('Error '. $e->getMessage());
+            die('Could not fetch data');
+        }
+    }
+
+
+
+    public static function insertRecord($table, $data)
+    {
+        $conn = Connection::connect();
+        $cols = implode(',', array_keys($data));
+        $valPlaceholder = implode(',', array_fill(0, count($data), '?'));
+        $values = array_values($data);
+
+        try
+        {
+            $sql = "INSERT INTO $table ($cols) VALUES ($valPlaceholder)";
+            $stmt = $conn->prepare($sql);
+            return $stmt->execute($values);
+        }
+        catch (Exception $e)
+        {
+            die('Failed to insert record');
         }
     }
 }

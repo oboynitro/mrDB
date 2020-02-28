@@ -4,7 +4,7 @@
 require_once('config.php');
 
 
-class DBConn
+class Connection
 {
     public static function connect()
     {
